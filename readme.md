@@ -174,4 +174,4 @@ Finally, `intsplot` provides a graphical depiction of the interaction point esti
 ```
 ![Alt Text](https://github.com/Modglmtemp/Modglm/blob/master/pois.intsplotex.png)
 
-Here, we note that the interaction effect increases in magnitude as the predicted value for the observation increased. Note further that this plot is largely a reflection of the values summarized in `pois.ints$desc`.
+Here, we note that the interaction effect increases in magnitude as the predicted value for the observation increased. Note further that this plot is largely a reflection of the values summarized in `pois.ints$desc` (e.g., the range in the interaction effect along the y-axis and the significance of each observed effect as indicated by color).
