@@ -383,6 +383,8 @@ modglm<-function(model, vars, data, part=NULL, hyps="means", plotby=NULL,type="c
   ints$obints$sig[abs(ints$obints$t.val)<1.96]<-"N.S."
   
   ints$inthyp<-as.vector(ints$inthyp[1,])
+  ints$inthyp["inthyp.ll"]<-ints$inthyp["int.est"]-1.96*ints$inthyp["se.int.est"]
+  ints$inthyp["inthyp.ll"]<-ints$inthyp["int.est"]+1.96*ints$inthyp["se.int.est"]
   
   ints$model.summary<-summary(model)
   
