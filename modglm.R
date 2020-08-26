@@ -369,7 +369,8 @@ modglm<-function(model, vars, data, part=NULL, hyps="means", plotby=NULL,type="c
   
   
   ints$aie<-data.frame(aie.est=NA,aie.se.delta=NA)
-  names(ints)<-c("obints","inthyp","aie")
+  ints$desc<-data.frame(prop.sig=NA,int.range=NA, prop.pos=NA,prop.neg=NA)
+  names(ints)<-c("obints","inthyp","aie","desc")
   
   ints$aie$aie.est<-mean(ints$obints$int.est)
   if(model$call[1]=="gee()"){ints$aie$aie.se <- sqrt(as.vector(colMeans(jacs[[1]]))%*%gee_Rap_full$robust.variance %*%as.vector(t(colMeans(jacs[[1]]))))}
@@ -377,8 +378,10 @@ modglm<-function(model, vars, data, part=NULL, hyps="means", plotby=NULL,type="c
 
   ints$aie$aie.ll<-ints$aie$aie.est-1.96*ints$aie$aie.se.delta
   ints$aie$aie.ul<-ints$aie$aie.est+1.96*ints$aie$aie.se.delta
-  ints$prop.sig<-length(which(abs(ints$obints$t.val)>1.96))/length(ints$obints$t.val)
-  
+  ints$desc["prop.sig"]<-length(which(abs(ints$obints$t.val)>1.96))/length(ints$obints$t.val)
+  ints$desc["int.range"]<-range(ints$obints$int.est)
+  ints$desc["prop.pos"]<-length(which(ints$obints$int.est)>=0))/length(ints$obints$int.est)
+  ints$desc["prop.neg"]<-length(which(ints$obints$int.est)<0))/length(ints$obints$int.est)                                   
   ints$obints$sig[abs(ints$obints$t.val)>=1.96]<-"Sig."
   ints$obints$sig[abs(ints$obints$t.val)<1.96]<-"N.S."
   
