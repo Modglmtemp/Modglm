@@ -119,7 +119,7 @@ Finally, `modglm` will optionally produce an interaction point estimate at a spe
 
 ```
 > names(pois.ints)
-[1] "obints"        "inthyp"        "prop.sig"      "model.summary" "intsplot" 
+[1] "obints"        "inthyp"        "aie"           "desc"          "model.summary" "intsplot"  
 ```
 
 `obints` provides a data frame of values computed observation-wise in the data. In order of columns, these include the interaction point estimates in the data (`int.est`), the predicted value of the outcome (`hat`), the delta method standard error of interaction point estimate (`se.int.est`), the t-value (`t.val`), and the significance designation based on the t-value (`sig`). Example ouput for the first six observations is the following:
@@ -135,15 +135,42 @@ Finally, `modglm` will optionally produce an interaction point estimate at a spe
 6 0.216222800 0.29885428 0.119301334 1.812409 N.S.
 ```
 
+Above, `int.est` refers to the interaction effect estimate for each observation, `hat` refers to the predicted count of alcohol use, and `se.int.est`, `t.val`, and `sig` refer to the delta method standard error of the estimate, the corresponding t-value, and whether or not the estimate was statistically significant at the 0.05 level, respectively.
 
-`inthyp` provides the results of the hypothetical condition specified by `hyps` as described above. This has the identical format as `obints` but contains only a single row of values.
+`inthyp` provides the results of the hypothetical condition specified by `hyps` as described above. This has the identical format as `obints` but contains only a single row of values:
 
-`prop.sig` provides the proportion of significant values among the observed data. This value may be helpful to users in summarizing the results in-text.
+```
+> pois.ints$inthyp
+     int.est        hat se.int.est    t.val   inthyp.ll inthyp.ul
+1 0.02980042 0.06981395 0.01067509 2.791584 0.008877233 0.0507236
+
+```
+Here, given the default `hyp="means"`, the `int.est` value indicates the interaction effect estimate when sensation seeking, premeditation, and biological sex are each at their respective means. We may infer from these values that the interaction effect was 0.030 (95% CI = [0.01, 0.05]) at the hypothetical mean of all predictor variables, indicating that the marginal effect of sensation seeking on the count of past year alcohol use was stronger among males than females at these levels.
+
+`aie` refers to the average interaction effect and follows a similar formatting:
+```
+> pois.ints$aie
+     aie.est aie.se.delta     aie.ll    aie.ul
+1 0.07240055   0.03350906 0.00672279 0.1380783
+```
+Here, we made a similar inference that the average interaction effect was significant and positive across observations (est. = 0.072, 95% CI = [0.01, 0.14]). We note in our manuscript that this value may be a more appropriate single estimate to provide as an in-text description of the interaction effect relative to the hypothetical mean value (e.g., Hanmer & Kalkan, 2013).
+
+`desc` provides several other helpful descriptors of the interaction effect that researchers may wish to report. For the current example:
+
+```
+> pois.ints$desc
+  int.range prop.sig prop.pos prop.neg
+1    0-1.86    0.858        1        0
+```
+
+`int.range` refers to the range of hte interaction effects observed in the data. Here, the interaction effect ranged from 0 to 1.86 across observations. The `prop.sig` value indicates the proportion of values which were significant in the sample (i.e. 85.8% of interactions were significant). `prop.pos` and `prop.neg` indicate the proportion of interactions in the sample which were of positive or negative sign, respectively. Given all lower-order terms and the product term was positive here, 100% of the interactions were positive. However, we note that when the product term is negative, and/or in the case of logistic models, it is possible that some proportion of interaction effects may be positive or negative. Substantively, we can state here that the marginal effect of sensation seeking on the count of past year alcohol use was stronger among males than females across the entirety of the sample, and was statistically different from zero for approximately 85% of the sample. These figures speak to the robustness of this effect given the observed data.
 
 `model.summary` is strictly a reproduction of a results summary table provided by the model (i.e. `summary(pois)`).
 
-Finally, `intsplot` provides a graphical depiction of the interaction point estimates computed observation-wise, plotted against the model-predicted outcome (see also Ai & Norton, 2003). This plot is created using `ggplot2`. This provides a snapshot summary of the interaction effects present in the data, including the significance values and the potential range in the observed interaction effects.
+Finally, `intsplot` provides a graphical depiction of the interaction point estimates computed observation-wise, plotted against the model-predicted outcome (see also Ai & Norton, 2003). This plot is created using `ggplot2`. This provides a snapshot summary of the interaction effects present in the data, including the significance values and the potential range in the observed interaction effects:
 
-## Real data example
+```
+> pois.ints$intsplot
+```
 
-We use data provided by our 2015 paper (blinded for review) to demonstrate the use of these functions.
+Here, we note that the interaction effect increases in magnitude as the predicted value for the observation increased. Note further that this plot is largely a reflection of the values summarized in `pois.ints$desc`.
