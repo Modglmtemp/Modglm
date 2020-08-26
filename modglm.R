@@ -371,9 +371,6 @@ modglm<-function(model, vars, data, part=NULL, hyps="means", plotby=NULL,type="c
   ints$aie<-data.frame(aie.est=NA,aie.se.delta=NA)
   names(ints)<-c("obints","inthyp","aie")
   
-  ints$jac<-jacs[[1]]
-  ints$vcov<-vcov(model)
-  
   ints$aie$aie.est<-mean(ints$obints$int.est)
   if(model$call[1]=="gee()"){ints$aie$aie.se <- sqrt(as.vector(colMeans(jacs[[1]]))%*%gee_Rap_full$robust.variance %*%as.vector(t(colMeans(jacs[[1]]))))}
   else{ints$aie$aie.se.delta <- sqrt(as.vector(colMeans(jacs[[1]]))%*%vcov(model)%*%as.vector(t(colMeans(jacs[[1]]))))}
