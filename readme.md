@@ -24,8 +24,8 @@ The following instructions are based upon the simulated Poisson example presente
 set.seed(1678)
 
 b0 <- -3.8 ##Intercept
-b1 <- .35 ###X1 Effect
-b2 <- .9 #X2 Effect
+b1 <- .35 ###Sensation Seeking Effect
+b2 <- .9 #Premeditation  Effect
 b3 <- 1.1 #Sex covariate effect
 b13<- .2 #product term coefficient
 n<-1000 #Sample Size
@@ -45,13 +45,13 @@ xb<-  (b0) + (b1) * (rawvars[,1]) + (b2) * (rawvars[,2]) + (b3)*cat + b13*cat*(r
 ct <- exp(xb)
 y <- rpois(n,ct)
 
-df <- data.frame(y=y,x1=rawvars[,1],x2=rawvars[,2],female=cat)
+df <- data.frame(y=y,senseek=rawvars[,1],premed=rawvars[,2],male=cat)
 ```
 
 We may then use this data to estimate the model as follows:
 
 ```
-pois<-glm(y ~ x1 + x2 + female + x1:female, data=df,family="poisson")
+pois<-glm(y ~ senseek + premed + male + senseek:male, data=df,family="poisson")
 ```
 We can view the model summary results as follows:
 
@@ -98,7 +98,7 @@ eval(parse(text = getURL("https://raw.githubusercontent.com/Modglmtemp/Modglm/ma
 Assume that we aim to use `modglm` to estimate the interaction between sensation seeking and sex in the above model. We estimate interaction effects using `modglm` as follows:
 
 ```
-pois.ints<-modglm(model=pois, vars=c("senseek","female"), data=df, type="fd", hyps="means")
+pois.ints<-modglm(model=pois, vars=c("senseek","male"), data=df, type="fd", hyps="means")
 ```
 
 Above, `modglm` requires at minimum four inputs, with one additional optional input.
@@ -109,9 +109,9 @@ The second is a 2-element vector of the variables included in the interaction te
 
 The third is the data frame used in estimating the model (e.g., `data=df`).
 
-The fourth is the type of interaction being specified (e.g., `type="fd"`). This corresponds directly with the definition of interaction being used based on the variable type of the predictors. Three options are available, which mirrior our definition of interaction in Equation 10 in our manuscript. For continuous variable interactions, specify `type="cpd"` for computing the second-order cross-partial derivative. For continuous-by-discrete variable interactions, specify `type="fd"` for computing the finite difference in the partial derivative. For discrete variable interactions, specify `type="dd"` for computing the double finite difference.
+The fourth is the type of interaction being specified (e.g., `type="fd"`). This corresponds directly with the definition of interaction being used based on the variable type of the predictors. Three options are available, which mirrior our definition of interaction in Equation 10 in our manuscript. For continuous variable interactions, specify `type="cpd"` for computing the second-order cross-partial derivative. For continuous-by-discrete variable interactions, specify `type="fd"` for computing the finite difference in the partial derivative. For discrete variable interactions, specify `type="dd"` for computing the double (finite) difference.
 
-Finally, `modglm` will optionally produce an interaction point estimate at a specified hypothetical condition using the `hyp` input. By default, this is specified at the mean values of all included covariates. However, this can be modified by providing a vector of hypothetical values for the predictors involved in the model. For example, using `hyps=c(c(1,-.5,.25,0)` will provide estimates for when sensation seeking is -0.5, x2 is 0.25, and female is 0. Note that a 1 must be provided at the beginning of this vector to carry forward the intercept value. 
+Finally, `modglm` will optionally produce an interaction point estimate at a specified hypothetical condition using the `hyp` input (i.e., interactions at representative values as described in Implication 1 of the manuscript). By default, this is specified at the mean values of all included covariates (i.e. interaction effect at sample means). However, this can be modified by providing a vector of hypothetical values for the predictors involved in the model. For example, using `hyps=c(c(1,-.5,.25,0)` will provide estimates for when sensation seeking is 0.5 standard deviations from its own mean, premeditation is at 0.25 standard deviation above its own mean, and sex is 0 (i.e. female). Note that a 1 must be provided at the beginning of this vector to carry forward the intercept value. 
 
 ### `modglm` Output
 
@@ -122,7 +122,7 @@ Finally, `modglm` will optionally produce an interaction point estimate at a spe
 [1] "obints"        "inthyp"        "aie"           "desc"          "model.summary" "intsplot"  
 ```
 
-`obints` provides a data frame of values computed observation-wise in the data. In order of columns, these include the interaction point estimates in the data (`int.est`), the predicted value of the outcome (`hat`), the delta method standard error of interaction point estimate (`se.int.est`), the t-value (`t.val`), and the significance designation based on the t-value (`sig`). Example ouput for the first six observations is the following:
+`obints` provides a data frame of values computed observation-wise in the data. In order of columns, these include the interaction point estimates (`int.est`) and the predicted value of the outcome (`hat`) in the observed data. Other values provided are the delta method standard error of each interaction point estimate (`se.int.est`), the t-value (`t.val`), and the significance designation based on the t-value (`sig`). Example ouput for the first six observations is the following:
 
 ```
 > head(pois.ints$obints)
@@ -163,7 +163,7 @@ Here, we made a similar inference that the average interaction effect was signif
 1    0-1.86    0.858        1        0
 ```
 
-`int.range` refers to the range of hte interaction effects observed in the data. Here, the interaction effect ranged from 0 to 1.86 across observations. The `prop.sig` value indicates the proportion of values which were significant in the sample (i.e. 85.8% of interactions were significant). `prop.pos` and `prop.neg` indicate the proportion of interactions in the sample which were of positive or negative sign, respectively. Given all lower-order terms and the product term was positive here, 100% of the interactions were positive. However, we note that when the product term is negative, and/or in the case of logistic models, it is possible that some proportion of interaction effects may be positive or negative. Substantively, we can state here that the marginal effect of sensation seeking on the count of past year alcohol use was stronger among males than females across the entirety of the sample, and was statistically different from zero for approximately 85% of the sample. These figures speak to the robustness of this effect given the observed data.
+`int.range` refers to the range of interaction effects observed in the data. Here, the interaction effect ranged from 0 to 1.86 across observations. The `prop.sig` value indicates the proportion of values which were significant in the sample (i.e. 85.8% of interactions were significant). `prop.pos` and `prop.neg` indicate the proportion of interactions in the sample which were of positive or negative sign, respectively. Given all lower-order terms and the product term was positive here, 100% of the interactions were positive. However, we note that when the product term is negative, and/or in the case of logistic models where the nature of the logit function may change the interaction effect, it is possible that interaction effects may be either positive or negative in sign in the same sample. Substantively, we can state here that the marginal effect of sensation seeking on the count of past year alcohol use was stronger among males than females across the entirety of the sample, and was statistically different from zero for approximately 85% of the sample. These figures speak to the robustness of the positive interaction effect we have observed on average and at the hypothetical mean of all predictors.
 
 `model.summary` is strictly a reproduction of a results summary table provided by the model (i.e. `summary(pois)`).
 
