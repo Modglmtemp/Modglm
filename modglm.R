@@ -380,8 +380,8 @@ modglm<-function(model, vars, data, part=NULL, hyps="means", plotby=NULL,type="c
   ints$aie$aie.ul<-ints$aie$aie.est+1.96*ints$aie$aie.se.delta
   ints$desc["prop.sig"]<-length(which(abs(ints$obints$t.val)>1.96))/length(ints$obints$t.val)
   ints$desc["int.range"]<-range(ints$obints$int.est)
-  ints$desc["prop.pos"]<-length(which(ints$obints$int.est)>=0))/length(ints$obints$int.est)
-  ints$desc["prop.neg"]<-length(which(ints$obints$int.est)<0))/length(ints$obints$int.est)                                   
+  ints$desc["prop.pos"]<-length(which(ints$obints$int.est)>=0)/length(ints$obints$int.est)
+  ints$desc["prop.neg"]<-length(which(ints$obints$int.est)<0)/length(ints$obints$int.est)                                   
   ints$obints$sig[abs(ints$obints$t.val)>=1.96]<-"Sig."
   ints$obints$sig[abs(ints$obints$t.val)<1.96]<-"N.S."
   
