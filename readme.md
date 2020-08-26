@@ -172,6 +172,6 @@ Finally, `intsplot` provides a graphical depiction of the interaction point esti
 ```
 > pois.ints$intsplot
 ```
-![Alt Text](https://github.com/Modglmtemp/Modglm/blob/master/pois.intsplotex.pdf)
+![Alt Text](https://github.com/Modglmtemp/Modglm/blob/master/pois.intsplotex.png)
 
 Here, we note that the interaction effect increases in magnitude as the predicted value for the observation increased. Note further that this plot is largely a reflection of the values summarized in `pois.ints$desc`.
