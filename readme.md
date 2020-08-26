@@ -18,7 +18,7 @@ However, we note key differences between our code and those provided by the abov
 
 ### Setup
 
-The following instructions are based upon the simulated Poisson example presented in Equation 17 of our manuscript. Code for generating this data are as follows:
+The following instructions are based upon the simulated Poisson example presented in Equation 17 of our manuscript. For illustration purposes, we will assume that we are examining the relation between sensation seeking (`senseek`; i.e. disposition toward novelty and excitement) and the count of past year alcohol use (`pyalc`) treating biological sex as a moderator (`male`, dummy coded such that 0 = female and 1 = male) in this relation. Premeditation (`premed`; i.e. thinking before acting) was included as a covariate in this example. Assume that both sensation seeking and premeditation are standardized variables in this example. We hypothesize that the effect of higher sensation seeking on the count of past year alcohol use is stronger among males compared to females, above and beyond the influence of other dispositional risk indicators (i.e. premeditation). Code for generating this data are as follows:
 
 ```
 set.seed(1678)
@@ -53,6 +53,38 @@ We may then use this data to estimate the model as follows:
 ```
 pois<-glm(y ~ x1 + x2 + female + x1:female, data=df,family="poisson")
 ```
+We can view the model summary results as follows:
+
+```
+> summary(pois)
+
+Call:
+glm(formula = y ~ senseek + premed + male + senseek:male, family = "poisson", 
+    data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.5069  -0.5234  -0.3070  -0.1742   4.1944  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.18884    0.20845 -15.298  < 2e-16 ***
+senseek       0.40202    0.15467   2.599  0.00934 ** 
+premed        1.09892    0.08650  12.704  < 2e-16 ***
+male          1.08317    0.22503   4.813 1.48e-06 ***
+senseek:male -0.01371    0.17503  -0.078  0.93757    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 936.43  on 999  degrees of freedom
+Residual deviance: 570.70  on 995  degrees of freedom
+AIC: 837.7
+
+Number of Fisher Scoring iterations: 6
+```
+
 Finally, we may source the `modglm` using the following code:
 
 ```
@@ -63,23 +95,23 @@ eval(parse(text = getURL("https://raw.githubusercontent.com/Modglmtemp/Modglm/ma
 
 ### The `modglm` Function
 
-Assume that we aim to use `modglm` to estimate the interaction between x1 and female in the above model. We estimate interaction effects using `modglm` as follows:
+Assume that we aim to use `modglm` to estimate the interaction between sensation seeking and sex in the above model. We estimate interaction effects using `modglm` as follows:
 
 ```
-pois.ints<-modglm(model=pois, vars=c("x1","female"), data=df, type="fd", hyps="means")
+pois.ints<-modglm(model=pois, vars=c("senseek","female"), data=df, type="fd", hyps="means")
 ```
 
 Above, `modglm` requires at minimum four inputs, with one additional optional input.
 
 The first is the estimated model object (e.g., `model=pois`). Currently, `model` may take logit or Poisson model objects estimated using the `stats` package and negative binomial model objects estimating using the `MASS` package. We hope to include additional GLMs in `modglm` in the near future, including zero-inflated and hurdle models and generalized estimating equation (GEE) GLMs.
 
-The second is a 2-element vector of the variables included in the interaction term (e.g., `vars=c("x1","female")`). As noted above, `modglm` makes no requirement that a product term need be specified in the model.
+The second is a 2-element vector of the variables included in the interaction term (e.g., `vars=c("senseek","male")`). As noted above, `modglm` makes no requirement that a product term need be specified in the model.
 
 The third is the data frame used in estimating the model (e.g., `data=df`).
 
 The fourth is the type of interaction being specified (e.g., `type="fd"`). This corresponds directly with the definition of interaction being used based on the variable type of the predictors. Three options are available, which mirrior our definition of interaction in Equation 10 in our manuscript. For continuous variable interactions, specify `type="cpd"` for computing the second-order cross-partial derivative. For continuous-by-discrete variable interactions, specify `type="fd"` for computing the finite difference in the partial derivative. For discrete variable interactions, specify `type="dd"` for computing the double finite difference.
 
-Finally, `modglm` will optionally produce an interaction point estimate at a specified hypothetical condition using the `hyp` input. By default, this is specified at the mean values of all included covariates. However, this can be modified by providing a vector of hypothetical values for the predictors involved in the model. For example, using `hyps=c(c(1,-.5,.25,0)` will provide estimates for when x1 is -0.5, x2 is 0.25, and female is 0. Note that a 1 must be provided at the beginning of this vector to carry forward the intercept value. 
+Finally, `modglm` will optionally produce an interaction point estimate at a specified hypothetical condition using the `hyp` input. By default, this is specified at the mean values of all included covariates. However, this can be modified by providing a vector of hypothetical values for the predictors involved in the model. For example, using `hyps=c(c(1,-.5,.25,0)` will provide estimates for when sensation seeking is -0.5, x2 is 0.25, and female is 0. Note that a 1 must be provided at the beginning of this vector to carry forward the intercept value. 
 
 ### `modglm` Output
 
@@ -90,7 +122,19 @@ Finally, `modglm` will optionally produce an interaction point estimate at a spe
 [1] "obints"        "inthyp"        "prop.sig"      "model.summary" "intsplot" 
 ```
 
-`obints` provides a data frame of values computed observation-wise in the data. In order of columns, these include the interaction point estimates in the data (`int.est`), the predicted value of the outcome (`hat`), the delta method standard error of interaction point estimate (`se.int.est`), the t-value (`t.val`), and the significance designation based on the t-value (`sig`).
+`obints` provides a data frame of values computed observation-wise in the data. In order of columns, these include the interaction point estimates in the data (`int.est`), the predicted value of the outcome (`hat`), the delta method standard error of interaction point estimate (`se.int.est`), the t-value (`t.val`), and the significance designation based on the t-value (`sig`). Example ouput for the first six observations is the following:
+
+```
+> head(pois.ints$obints)
+      int.est        hat  se.int.est    t.val  sig
+1 0.048693740 0.19323076 0.018002356 2.704854 Sig.
+2 0.012310515 0.01668499 0.005918071 2.080157 Sig.
+3 0.103610260 0.14034059 0.041662718 2.486882 Sig.
+4 0.025082212 0.09972100 0.010919692 2.296971 Sig.
+5 0.005403181 0.02132563 0.001940828 2.783957 Sig.
+6 0.216222800 0.29885428 0.119301334 1.812409 N.S.
+```
+
 
 `inthyp` provides the results of the hypothetical condition specified by `hyps` as described above. This has the identical format as `obints` but contains only a single row of values.
 
@@ -99,3 +143,7 @@ Finally, `modglm` will optionally produce an interaction point estimate at a spe
 `model.summary` is strictly a reproduction of a results summary table provided by the model (i.e. `summary(pois)`).
 
 Finally, `intsplot` provides a graphical depiction of the interaction point estimates computed observation-wise, plotted against the model-predicted outcome (see also Ai & Norton, 2003). This plot is created using `ggplot2`. This provides a snapshot summary of the interaction effects present in the data, including the significance values and the potential range in the observed interaction effects.
+
+## Real data example
+
+We use data provided by our 2015 paper (blinded for review) to demonstrate the use of these functions.
